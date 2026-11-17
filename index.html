@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Controle de estoque para pequenos comércios: cadastro, consulta, edição, exclusão e movimentação de produtos.">
+  <title>Controle de Estoque</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!--
+    Scripts clássicos com "defer": rodam na ordem abaixo, depois que o HTML
+    foi lido. Não usamos import/export porque ES Modules não funcionam ao
+    abrir o arquivo direto no navegador (file://).
+    A ordem importa: cada arquivo usa funções dos que vêm antes dele.
+  -->
+  <script src="js/utils.js" defer></script>
+  <script src="js/storage.js" defer></script>
+  <script src="js/produtos.js" defer></script>
+  <script src="js/movimentacao.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <a class="link-pular" href="#conteudo-principal">Pular para o conteúdo</a>
+
+  <header class="cabecalho">
+    <div class="container">
+      <h1 class="cabecalho__titulo">Controle de Estoque</h1>
+      <p class="cabecalho__subtitulo">Cadastre produtos, registre entradas e saídas e acompanhe o que precisa de reposição.</p>
+    </div>
+  </header>
+
+  <main id="conteudo-principal" class="container">
+
+    <!-- Área única de mensagens de feedback. aria-live faz o leitor de tela anunciar o texto novo. -->
+    <div id="mensagem" class="mensagem" role="status" aria-live="polite"></div>
+
+    <!-- Resumo -->
+    <section class="resumo" aria-labelledby="titulo-resumo">
+      <h2 id="titulo-resumo" class="visualmente-oculto">Resumo do estoque</h2>
+      <div class="cartao-resumo">
+        <p class="cartao-resumo__rotulo">Total de produtos</p>
+        <p id="total-produtos" class="cartao-resumo__valor">0</p>
+      </div>
+      <div class="cartao-resumo cartao-resumo--alerta">
+        <p class="cartao-resumo__rotulo">Estoque baixo</p>
+        <p id="total-estoque-baixo" class="cartao-resumo__valor">0</p>
+      </div>
+      <div class="cartao-resumo cartao-resumo--perigo">
+        <p class="cartao-resumo__rotulo">Sem estoque</p>
+        <p id="total-sem-estoque" class="cartao-resumo__valor">0</p>
+      </div>
+    </section>
+
+    <div class="grade-formularios">
+
+      <!-- Cadastro / edição de produto -->
+      <section class="painel" aria-labelledby="titulo-form-produto">
+        <h2 id="titulo-form-produto" class="painel__titulo">Cadastrar produto</h2>
+
+        <!-- novalidate: a validação é feita pelo nosso JS, com mensagens em português junto ao campo. -->
+        <form id="form-produto" class="formulario" novalidate>
+          <input type="hidden" id="produto-id" name="id" value="">
+
+          <div class="campo">
+            <label for="produto-nome">Nome do produto</label>
+            <input type="text" id="produto-nome" name="nome" maxlength="80" autocomplete="off"
+                   required aria-describedby="erro-produto-nome">
+            <p id="erro-produto-nome" class="campo__erro"></p>
+          </div>
+
+          <div class="campo">
+            <label for="produto-categoria">Categoria</label>
+            <select id="produto-categoria" name="categoria" required aria-describedby="erro-produto-categoria">
+              <option value="">Selecione</option>
+              <option value="Alimentos">Alimentos</option>
+              <option value="Bebidas">Bebidas</option>
+              <option value="Limpeza">Limpeza</option>
+              <option value="Higiene">Higiene</option>
+              <option value="Papelaria">Papelaria</option>
+              <option value="Outros">Outros</option>
+            </select>
+            <p id="erro-produto-categoria" class="campo__erro"></p>
+          </div>
+
+          <div class="campo-linha">
+            <div class="campo">
+              <label for="produto-quantidade">Quantidade inicial</label>
+              <input type="number" id="produto-quantidade" name="quantidade" min="0" step="1"
+                     inputmode="numeric" required aria-describedby="dica-produto-quantidade erro-produto-quantidade">
+              <p id="dica-produto-quantidade" class="campo__dica" hidden>Para alterar a quantidade, registre uma entrada ou saída.</p>
+              <p id="erro-produto-quantidade" class="campo__erro"></p>
+            </div>
+
+            <div class="campo">
+              <label for="produto-estoque-minimo">Estoque mínimo</label>
+              <input type="number" id="produto-estoque-minimo" name="estoqueMinimo" min="0" step="1"
+                     inputmode="numeric" required aria-describedby="erro-produto-estoque-minimo">
+              <p id="erro-produto-estoque-minimo" class="campo__erro"></p>
+            </div>
+          </div>
+
+          <div class="formulario__acoes">
+            <button type="submit" id="btn-salvar-produto" class="btn btn--primario">Cadastrar produto</button>
+            <button type="button" id="btn-cancelar-edicao" class="btn btn--secundario" hidden>Cancelar</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Movimentação de entrada e saída -->
+      <section class="painel" aria-labelledby="titulo-form-movimentacao">
+        <h2 id="titulo-form-movimentacao" class="painel__titulo">Registrar entrada ou saída</h2>
+
+        <form id="form-movimentacao" class="formulario" novalidate>
+          <div class="campo">
+            <label for="mov-produto">Produto</label>
+            <select id="mov-produto" name="produtoId" required aria-describedby="erro-mov-produto">
+              <option value="">Selecione um produto</option>
+            </select>
+            <p id="erro-mov-produto" class="campo__erro"></p>
+          </div>
+
+          <div class="campo-linha">
+            <div class="campo">
+              <label for="mov-tipo">Tipo</label>
+              <select id="mov-tipo" name="tipo" required aria-describedby="erro-mov-tipo">
+                <option value="entrada">Entrada</option>
+                <option value="saida">Saída</option>
+              </select>
+              <p id="erro-mov-tipo" class="campo__erro"></p>
+            </div>
+
+            <div class="campo">
+              <label for="mov-quantidade">Quantidade</label>
+              <input type="number" id="mov-quantidade" name="quantidade" min="1" step="1"
+                     inputmode="numeric" required aria-describedby="erro-mov-quantidade">
+              <p id="erro-mov-quantidade" class="campo__erro"></p>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="mov-observacao">Observação <span class="campo__opcional">(opcional)</span></label>
+            <input type="text" id="mov-observacao" name="observacao" maxlength="200" autocomplete="off">
+          </div>
+
+          <div class="formulario__acoes">
+            <button type="submit" id="btn-registrar-movimentacao" class="btn btn--primario">Registrar movimentação</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <!-- Listagem de produtos -->
+    <section class="painel" aria-labelledby="titulo-lista-produtos">
+      <h2 id="titulo-lista-produtos" class="painel__titulo">Produtos cadastrados</h2>
+
+      <div class="campo campo--pesquisa">
+        <label for="campo-pesquisa">Pesquisar pelo nome</label>
+        <input type="search" id="campo-pesquisa" name="pesquisa" autocomplete="off" placeholder="Ex.: arroz">
+      </div>
+
+      <!-- tabindex="0" permite rolar a tabela pelo teclado quando ela é mais larga que a tela. -->
+      <div class="tabela-rolagem" role="region" aria-labelledby="titulo-lista-produtos" tabindex="0">
+        <table id="tabela-produtos" class="tabela">
+          <caption class="visualmente-oculto">Lista de produtos com quantidade, estoque mínimo e status</caption>
+          <thead>
+            <tr>
+              <th scope="col">Nome</th>
+              <th scope="col">Categoria</th>
+              <th scope="col" class="tabela__numero">Quantidade</th>
+              <th scope="col" class="tabela__numero">Estoque mínimo</th>
+              <th scope="col">Status</th>
+              <th scope="col">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-tabela-produtos"></tbody>
+        </table>
+      </div>
+
+      <!-- O texto é definido pelo JS: "nenhum cadastrado" ou "nenhum encontrado" na pesquisa. -->
+      <p id="lista-vazia" class="lista-vazia" hidden>Nenhum produto cadastrado ainda. Use o formulário acima para cadastrar o primeiro.</p>
+    </section>
+
+    <!-- Histórico de movimentações -->
+    <section class="painel" aria-labelledby="titulo-historico">
+      <h2 id="titulo-historico" class="painel__titulo">Histórico de movimentações</h2>
+
+      <div class="tabela-rolagem" role="region" aria-labelledby="titulo-historico" tabindex="0">
+        <table id="tabela-movimentacoes" class="tabela">
+          <caption class="visualmente-oculto">Últimas movimentações, da mais recente para a mais antiga</caption>
+          <thead>
+            <tr>
+              <th scope="col">Data</th>
+              <th scope="col">Produto</th>
+              <th scope="col">Tipo</th>
+              <th scope="col" class="tabela__numero">Quantidade</th>
+              <th scope="col">Observação</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-tabela-movimentacoes"></tbody>
+        </table>
+      </div>
+
+      <p id="historico-vazio" class="lista-vazia" hidden>Nenhuma movimentação registrada ainda.</p>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="container rodape__conteudo">
+      <p>Projeto Integrador - Análise e Desenvolvimento de Sistemas - 3º semestre</p>
+      <button type="button" id="btn-dados-exemplo" class="btn btn--discreto">Carregar dados de exemplo</button>
+    </div>
+  </footer>
+</body>
+</html>

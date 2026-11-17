@@ -1,0 +1,500 @@
+/* ==========================================================================
+   Controle de Estoque - folha de estilos
+   Organização: 1. Variáveis  2. Base  3. Layout  4. Componentes  5. Responsivo
+   ========================================================================== */
+
+/* 1. VARIÁVEIS ------------------------------------------------------------
+   Cores e espaçamentos centralizados: mudar o tema é mudar só aqui.
+   As combinações texto/fundo foram escolhidas com contraste >= 4.5:1 (WCAG AA). */
+:root {
+  /* Cores base */
+  --cor-fundo: #f4f5f7;
+  --cor-superficie: #ffffff;
+  --cor-texto: #1f2937;
+  --cor-texto-suave: #4b5563;
+  --cor-borda: #d1d5db;
+
+  /* Cor principal (botões, links, foco) */
+  --cor-primaria: #1d4ed8;
+  --cor-primaria-escura: #1e3a8a;
+  --cor-foco: #2563eb;
+
+  /* Estados */
+  --cor-sucesso: #166534;
+  --cor-sucesso-fundo: #e8f5ec;
+  --cor-alerta: #7a4a00;
+  --cor-alerta-fundo: #fff4d6;
+  --cor-perigo: #b91c1c;
+  --cor-perigo-escura: #8f1515;
+  --cor-perigo-fundo: #fdecec;
+
+  /* Espaçamentos */
+  --espaco-xs: 0.25rem;
+  --espaco-sm: 0.5rem;
+  --espaco-md: 1rem;
+  --espaco-lg: 1.5rem;
+  --espaco-xl: 2rem;
+
+  /* Outros */
+  --raio: 8px;
+  --sombra: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --largura-maxima: 1100px;
+  --fonte: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* 2. BASE ----------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fonte);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--cor-texto);
+  background-color: var(--cor-fundo);
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+/* Foco sempre visível para quem navega pelo teclado. */
+:focus-visible {
+  outline: 3px solid var(--cor-foco);
+  outline-offset: 2px;
+}
+
+/* Esconde da tela, mas mantém para leitores de tela. */
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Garante que o atributo hidden vença qualquer display definido em classes. */
+[hidden] {
+  display: none !important;
+}
+
+.link-pular {
+  position: absolute;
+  left: var(--espaco-md);
+  top: -100px;
+  padding: var(--espaco-sm) var(--espaco-md);
+  background: var(--cor-primaria);
+  color: #fff;
+  border-radius: var(--raio);
+  z-index: 10;
+}
+
+.link-pular:focus {
+  top: var(--espaco-md);
+}
+
+/* 3. LAYOUT --------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: var(--largura-maxima);
+  margin: 0 auto;
+  padding: 0 var(--espaco-md);
+}
+
+.cabecalho {
+  background-color: var(--cor-primaria-escura);
+  color: #fff;
+  padding: var(--espaco-lg) 0;
+  margin-bottom: var(--espaco-lg);
+}
+
+.cabecalho__titulo {
+  font-size: 1.6rem;
+}
+
+.cabecalho__subtitulo {
+  margin-top: var(--espaco-xs);
+  opacity: 0.9;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-lg);
+  padding-bottom: var(--espaco-xl);
+}
+
+.grade-formularios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espaco-lg);
+  align-items: start;
+}
+
+.rodape {
+  border-top: 1px solid var(--cor-borda);
+  padding: var(--espaco-md) 0;
+  color: var(--cor-texto-suave);
+  font-size: 0.875rem;
+}
+
+.rodape__conteudo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--espaco-sm);
+}
+
+/* 4. COMPONENTES ---------------------------------------------------------- */
+
+/* Painel (caixa branca de cada seção) */
+.painel {
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: var(--espaco-lg);
+}
+
+.painel__titulo {
+  font-size: 1.25rem;
+  margin-bottom: var(--espaco-md);
+}
+
+/* Cartões de resumo */
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--espaco-md);
+}
+
+.cartao-resumo {
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-left: 6px solid var(--cor-primaria);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: var(--espaco-md);
+}
+
+.cartao-resumo--alerta {
+  border-left-color: #d97706;
+}
+
+.cartao-resumo--perigo {
+  border-left-color: var(--cor-perigo);
+}
+
+.cartao-resumo__rotulo {
+  color: var(--cor-texto-suave);
+  font-size: 0.875rem;
+}
+
+.cartao-resumo__valor {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+/* Formulários */
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.campo-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espaco-md);
+}
+
+.campo label {
+  font-weight: 600;
+}
+
+.campo__opcional {
+  font-weight: 400;
+  color: var(--cor-texto-suave);
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  padding: var(--espaco-sm) 0.75rem;
+  border: 1px solid #9ca3af;
+  border-radius: var(--raio);
+  background-color: var(--cor-superficie);
+  min-height: 44px; /* área de toque confortável no celular */
+}
+
+.campo input:disabled {
+  background-color: #eceef1;
+  color: var(--cor-texto-suave);
+  cursor: not-allowed;
+}
+
+.campo__dica {
+  font-size: 0.875rem;
+  color: var(--cor-texto-suave);
+}
+
+/* Mensagem de erro junto ao campo: vazia não ocupa espaço. */
+.campo__erro {
+  font-size: 0.875rem;
+  color: var(--cor-perigo);
+}
+
+.campo__erro:empty {
+  display: none;
+}
+
+/* Classe aplicada pelo JS no input inválido (junto com aria-invalid="true"). */
+.campo--invalido {
+  border-color: var(--cor-perigo) !important;
+  box-shadow: 0 0 0 1px var(--cor-perigo);
+}
+
+.campo--pesquisa {
+  max-width: 400px;
+  margin-bottom: var(--espaco-md);
+}
+
+.formulario__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+}
+
+/* Botões */
+.btn {
+  font: inherit;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: var(--raio);
+  padding: var(--espaco-sm) var(--espaco-md);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.btn--primario {
+  background-color: var(--cor-primaria);
+  color: #fff;
+}
+
+.btn--primario:hover {
+  background-color: var(--cor-primaria-escura);
+}
+
+.btn--secundario {
+  background-color: var(--cor-superficie);
+  color: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+}
+
+.btn--secundario:hover {
+  background-color: #eef2ff;
+}
+
+.btn--perigo {
+  background-color: var(--cor-superficie);
+  color: var(--cor-perigo);
+  border-color: var(--cor-perigo);
+}
+
+.btn--perigo:hover {
+  background-color: var(--cor-perigo-fundo);
+  color: var(--cor-perigo-escura);
+}
+
+/* Botão de pouca ênfase (ex.: carregar dados de exemplo). */
+.btn--discreto {
+  background: none;
+  color: var(--cor-texto-suave);
+  text-decoration: underline;
+  font-weight: 400;
+  padding: var(--espaco-xs) var(--espaco-sm);
+  min-height: auto;
+}
+
+.btn--discreto:hover {
+  color: var(--cor-texto);
+}
+
+/* Botões menores usados dentro da tabela. */
+.btn--pequeno {
+  font-size: 0.875rem;
+  padding: var(--espaco-xs) 0.75rem;
+  min-height: 36px;
+}
+
+/* Mensagens de feedback */
+.mensagem {
+  border-radius: var(--raio);
+  padding: var(--espaco-md);
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+
+/* Vazia, a área continua no DOM (necessário para o aria-live), mas não aparece. */
+.mensagem:empty {
+  padding: 0;
+  border: 0;
+}
+
+.mensagem--sucesso {
+  background-color: var(--cor-sucesso-fundo);
+  color: var(--cor-sucesso);
+  border-color: var(--cor-sucesso);
+}
+
+.mensagem--erro {
+  background-color: var(--cor-perigo-fundo);
+  color: var(--cor-perigo-escura);
+  border-color: var(--cor-perigo);
+}
+
+/* Tabelas */
+.tabela-rolagem {
+  overflow-x: auto; /* no celular, a tabela rola de lado em vez de quebrar a página */
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.tabela th,
+.tabela td {
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--cor-borda);
+  vertical-align: middle;
+}
+
+.tabela th {
+  background-color: #f9fafb;
+  font-size: 0.875rem;
+  color: var(--cor-texto-suave);
+  white-space: nowrap;
+}
+
+.tabela__numero {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+}
+
+/* Destaque de linha conforme o status do produto. */
+.linha--estoque-baixo {
+  background-color: var(--cor-alerta-fundo);
+}
+
+.linha--sem-estoque {
+  background-color: var(--cor-perigo-fundo);
+}
+
+/* Badges de status e de tipo de movimentação */
+.badge {
+  display: inline-block;
+  padding: 0.125rem var(--espaco-sm);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+}
+
+.badge--normal,
+.badge--entrada {
+  color: var(--cor-sucesso);
+  background-color: var(--cor-sucesso-fundo);
+}
+
+.badge--estoque-baixo {
+  color: var(--cor-alerta);
+  background-color: var(--cor-alerta-fundo);
+}
+
+.badge--sem-estoque,
+.badge--saida {
+  color: var(--cor-perigo-escura);
+  background-color: var(--cor-perigo-fundo);
+}
+
+/* Lista vazia / nenhum resultado */
+.lista-vazia {
+  padding: var(--espaco-lg);
+  text-align: center;
+  color: var(--cor-texto-suave);
+}
+
+/* 5. RESPONSIVO ----------------------------------------------------------- */
+@media (max-width: 800px) {
+  .grade-formularios {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .cabecalho__titulo {
+    font-size: 1.35rem;
+  }
+
+  .painel {
+    padding: var(--espaco-md);
+  }
+
+  /* Cartões de resumo empilhados e mais compactos. */
+  .resumo {
+    grid-template-columns: 1fr;
+    gap: var(--espaco-sm);
+  }
+
+  .cartao-resumo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--espaco-sm) var(--espaco-md);
+  }
+
+  .cartao-resumo__valor {
+    font-size: 1.35rem;
+  }
+
+  .campo-linha {
+    grid-template-columns: 1fr;
+  }
+
+  .formulario__acoes .btn {
+    flex: 1 1 100%;
+  }
+
+  .campo--pesquisa {
+    max-width: none;
+  }
+}
