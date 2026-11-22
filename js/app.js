@@ -55,7 +55,23 @@ function tratarCliqueTabelaProdutos(evento) {
  */
 function tratarEnvioFormularioMovimentacao(evento) {
   evento.preventDefault();
-  // TODO (Fase 4)
+
+  limparMensagem();
+  limparErrosCampos(CAMPOS_FORM_MOVIMENTACAO);
+
+  const dados = lerFormularioMovimentacao();
+  const resultado = registrarMovimentacao(dados);
+
+  if (!resultado.sucesso) {
+    mostrarErrosCampos(resultado.erros, CAMPOS_FORM_MOVIMENTACAO);
+    mostrarMensagem('Verifique os campos destacados antes de registrar a movimentação.', 'erro');
+    return;
+  }
+
+  const textoTipo = resultado.movimentacao.tipo === TIPOS_MOVIMENTACAO.ENTRADA ? 'Entrada' : 'Saída';
+  mostrarMensagem(`${textoTipo} registrada com sucesso!`, 'sucesso');
+  resetarFormularioMovimentacao();
+  atualizarTela();
 }
 
 /** Digitação no campo de pesquisa: filtra a tabela em tempo real. */
