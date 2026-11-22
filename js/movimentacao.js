@@ -159,6 +159,10 @@ function listarMovimentacoesRecentes() {
  * @returns {boolean} true se salvou.
  */
 function excluirMovimentacoesDoProduto(produtoId) {
-  // TODO (Fase 3)
-  return true;
+  const movimentacoes = carregarMovimentacoes();
+  const restantes = movimentacoes.filter(
+    (movimentacao) => movimentacao.produtoId !== produtoId
+  );
+
+  return salvarMovimentacoes(restantes);
 }

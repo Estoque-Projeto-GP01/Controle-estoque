@@ -84,9 +84,11 @@ function listarProdutos() {
  * @returns {Object|null} O produto ou null se não existir.
  */
 function buscarProdutoPorId(id) {
-  // TODO (Fase 3)
-  return null;
+  const produtos = carregarProdutos();
+  const produto = produtos.find((item) => item.id === id);
+  return produto || null;
 }
+
 
 /**
  * Atualiza nome, categoria e estoque mínimo de um produto existente.
@@ -135,8 +137,20 @@ function atualizarQuantidadeProduto(id, novaQuantidade) {
  * @returns {boolean} true se excluiu.
  */
 function excluirProduto(id) {
-  // TODO (Fase 3)
-  return false;
+  const produtos = carregarProdutos();
+  const restantes = produtos.filter((produto) => produto.id !== id);
+
+  // Nada foi removido: o id não existe.
+  if (restantes.length === produtos.length) {
+    return false;
+  }
+
+  if (!salvarProdutos(restantes)) {
+    return false;
+  }
+
+  excluirMovimentacoesDoProduto(id);
+  return true;
 }
 
 /**
