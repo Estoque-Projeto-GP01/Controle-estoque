@@ -100,8 +100,36 @@ function buscarProdutoPorId(id) {
  * @returns {{sucesso: boolean, erros: Object, produto: Object|null}}
  */
 function atualizarProduto(id, dados) {
-  // TODO (Fase 3)
-  return { sucesso: false, erros: {}, produto: null };
+  const produtos = carregarProdutos();
+  const indice = produtos.findIndex((produto) => produto.id === id);
+
+  if (indice === -1) {
+    return { sucesso: false, erros: { nome: 'Produto não encontrado.' }, produto: null };
+  }
+
+  const validacao = validarProduto(dados, { idIgnorado: id, validarQuantidade: false });
+  if (!validacao.valido) {
+    return { sucesso: false, erros: validacao.erros, produto: null };
+  }
+
+  const produtoAtualizado = {
+    ...produtos[indice],
+    nome: String(dados.nome).trim(),
+    categoria: String(dados.categoria).trim(),
+    estoqueMinimo: converterParaInteiro(dados.estoqueMinimo),
+    atualizadoEm: obterDataAtualIso()
+  };
+  produtos[indice] = produtoAtualizado;
+
+  if (!salvarProdutos(produtos)) {
+    return {
+      sucesso: false,
+      erros: { nome: 'Não foi possível salvar o produto no navegador.' },
+      produto: null
+    };
+  }
+
+  return { sucesso: true, erros: {}, produto: produtoAtualizado };
 }
 
 /**
