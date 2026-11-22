@@ -160,8 +160,15 @@ function calcularStatusEstoque(produto) {
  * @returns {Array<Object>}
  */
 function filtrarProdutosPorNome(produtos, termo) {
-  // TODO (Fase 4)
-  return produtos;
+  const busca = normalizarTexto(termo);
+
+  if (!busca) {
+    return produtos;
+  }
+
+  return produtos.filter((produto) =>
+    normalizarTexto(produto.nome).includes(busca)
+  );
 }
 
 /**
