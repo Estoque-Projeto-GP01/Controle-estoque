@@ -33,6 +33,13 @@ const TEXTOS_FORM_PRODUTO = {
 const TEXTO_LISTA_VAZIA = 'Nenhum produto cadastrado ainda. Use o formulário acima para cadastrar o primeiro.';
 const TEXTO_PESQUISA_SEM_RESULTADO = 'Nenhum produto encontrado.';
 
+// Aparência de cada status. Fica aqui porque classe CSS é assunto da tela, não da regra de negócio.
+const ESTILOS_STATUS = {
+  [STATUS_ESTOQUE.NORMAL]: { badge: 'badge--normal', linha: '' },
+  [STATUS_ESTOQUE.BAIXO]: { badge: 'badge--estoque-baixo', linha: 'linha--estoque-baixo' },
+  [STATUS_ESTOQUE.SEM_ESTOQUE]: { badge: 'badge--sem-estoque', linha: 'linha--sem-estoque' }
+};
+
 /* ---------- Mensagens ---------- */
 
 /**
@@ -42,12 +49,16 @@ const TEXTO_PESQUISA_SEM_RESULTADO = 'Nenhum produto encontrado.';
  * @param {'sucesso'|'erro'} tipo
  */
 function mostrarMensagem(texto, tipo) {
-  // TODO (Fase 2)
+  const area = document.getElementById('mensagem');
+  area.className = `mensagem mensagem--${tipo}`;
+  area.textContent = texto;
 }
 
 /** Limpa o texto e as classes de tipo da área #mensagem. */
 function limparMensagem() {
-  // TODO (Fase 2)
+  const area = document.getElementById('mensagem');
+  area.className = 'mensagem';
+  area.textContent = '';
 }
 
 /* ---------- Erros nos campos ---------- */
@@ -78,7 +89,9 @@ function limparErrosCampos(mapaCampos) {
  * @param {{total: number, estoqueBaixo: number, semEstoque: number}} resumo
  */
 function renderizarResumo(resumo) {
-  // TODO (Fase 2)
+  document.getElementById('total-produtos').textContent = resumo.total;
+  document.getElementById('total-estoque-baixo').textContent = resumo.estoqueBaixo;
+  document.getElementById('total-sem-estoque').textContent = resumo.semEstoque;
 }
 
 /**
@@ -89,7 +102,15 @@ function renderizarResumo(resumo) {
  * @param {boolean} haPesquisaAtiva true se o campo de pesquisa tem texto.
  */
 function renderizarTabelaProdutos(produtos, haPesquisaAtiva) {
-  // TODO (Fase 2)
+  const listaEstaVazia = produtos.length === 0;
+  const avisoVazio = document.getElementById('lista-vazia');
+
+  document.getElementById('corpo-tabela-produtos').replaceChildren(...produtos.map(criarLinhaProduto));
+
+  // Esconde a caixa de rolagem inteira, senão o Tab pararia numa região vazia.
+  document.getElementById('tabela-produtos').parentElement.hidden = listaEstaVazia;
+  avisoVazio.hidden = !listaEstaVazia;
+  avisoVazio.textContent = haPesquisaAtiva ? TEXTO_PESQUISA_SEM_RESULTADO : TEXTO_LISTA_VAZIA;
 }
 
 /**
@@ -102,8 +123,67 @@ function renderizarTabelaProdutos(produtos, haPesquisaAtiva) {
  * @returns {HTMLTableRowElement}
  */
 function criarLinhaProduto(produto) {
-  // TODO (Fase 2)
-  return document.createElement('tr');
+  const status = calcularStatusEstoque(produto);
+  const linha = document.createElement('tr');
+  linha.className = ESTILOS_STATUS[status].linha;
+
+  linha.append(
+    criarCelula(produto.nome, 'tabela__nome'),
+    criarCelula(produto.categoria),
+    criarCelula(produto.quantidade, 'tabela__numero'),
+    criarCelula(produto.estoqueMinimo, 'tabela__numero'),
+    criarCelula(criarBadgeStatus(status)),
+    criarCelula(criarAcoesProduto(produto))
+  );
+  return linha;
+}
+
+/**
+ * Cria uma célula <td>. O append() trata texto como texto puro, nunca como HTML.
+ * @param {string|number|Node} conteudo
+ * @param {string} [classe]
+ * @returns {HTMLTableCellElement}
+ */
+function criarCelula(conteudo, classe = '') {
+  const celula = document.createElement('td');
+  celula.className = classe;
+  celula.append(conteudo);
+  return celula;
+}
+
+/**
+ * Agrupa os botões numa <div>, porque display:flex direto no <td> desalinha a tabela.
+ * @param {Object} produto
+ * @returns {HTMLDivElement}
+ */
+function criarAcoesProduto(produto) {
+  const acoes = document.createElement('div');
+  acoes.className = 'tabela__acoes';
+  acoes.append(
+    criarBotaoAcao(produto, 'editar', 'Editar', 'btn--secundario'),
+    criarBotaoAcao(produto, 'excluir', 'Excluir', 'btn--perigo')
+  );
+  return acoes;
+}
+
+/**
+ * Cria um botão de ação de uma linha da tabela.
+ * @param {Object} produto
+ * @param {'editar'|'excluir'} acao
+ * @param {string} rotulo
+ * @param {string} classe
+ * @returns {HTMLButtonElement}
+ */
+function criarBotaoAcao(produto, acao, rotulo, classe) {
+  const botao = document.createElement('button');
+  botao.type = 'button';
+  botao.className = `btn btn--pequeno ${classe}`;
+  botao.dataset.acao = acao;
+  botao.dataset.id = produto.id;
+  botao.textContent = rotulo;
+  // Sem o nome, o leitor de tela anunciaria vários botões "Editar" iguais.
+  botao.setAttribute('aria-label', `${rotulo} ${produto.nome}`);
+  return botao;
 }
 
 /**
@@ -113,8 +193,10 @@ function criarLinhaProduto(produto) {
  * @returns {HTMLSpanElement}
  */
 function criarBadgeStatus(status) {
-  // TODO (Fase 2)
-  return document.createElement('span');
+  const badge = document.createElement('span');
+  badge.className = `badge ${ESTILOS_STATUS[status].badge}`;
+  badge.textContent = status;
+  return badge;
 }
 
 /* ---------- Formulário de produto ---------- */

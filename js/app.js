@@ -14,7 +14,11 @@
  * Chamar depois de qualquer alteração (cadastro, edição, exclusão, movimentação).
  */
 function atualizarTela() {
-  // TODO (Fase 2): resumo e tabela.  (Fase 4): pesquisa, select e histórico.
+  const produtos = listarProdutos();
+
+  renderizarResumo(calcularResumo(produtos)); // sempre do estoque inteiro, mesmo com pesquisa
+  renderizarTabelaProdutos(produtos, false);
+  // TODO (Fase 4): pesquisa, select e histórico.
 }
 
 /**

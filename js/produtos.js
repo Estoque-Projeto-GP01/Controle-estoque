@@ -74,8 +74,9 @@ function criarProduto(dados) {
  * @returns {Array<Object>}
  */
 function listarProdutos() {
-  // TODO (Fase 2)
-  return [];
+  return carregarProdutos().sort((a, b) =>
+    a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' })
+  );
 }
 
 /**
@@ -135,7 +136,13 @@ function excluirProduto(id) {
  * @returns {string} Um dos valores de STATUS_ESTOQUE.
  */
 function calcularStatusEstoque(produto) {
-  // TODO (Fase 2)
+  // O zero vem primeiro porque também satisfaz "quantidade <= estoqueMinimo".
+  if (produto.quantidade === 0) {
+    return STATUS_ESTOQUE.SEM_ESTOQUE;
+  }
+  if (produto.quantidade <= produto.estoqueMinimo) {
+    return STATUS_ESTOQUE.BAIXO;
+  }
   return STATUS_ESTOQUE.NORMAL;
 }
 
@@ -157,6 +164,12 @@ function filtrarProdutosPorNome(produtos, termo) {
  * @returns {{total: number, estoqueBaixo: number, semEstoque: number}}
  */
 function calcularResumo(produtos) {
-  // TODO (Fase 2)
-  return { total: 0, estoqueBaixo: 0, semEstoque: 0 };
+  // Reaproveita a regra de status para o contador nunca divergir da tabela.
+  const status = produtos.map(calcularStatusEstoque);
+
+  return {
+    total: produtos.length,
+    estoqueBaixo: status.filter((item) => item === STATUS_ESTOQUE.BAIXO).length,
+    semEstoque: status.filter((item) => item === STATUS_ESTOQUE.SEM_ESTOQUE).length
+  };
 }
