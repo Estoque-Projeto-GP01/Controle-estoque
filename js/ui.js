@@ -208,5 +208,48 @@ function resetarFormularioMovimentacao() {
  * @param {function(string): string} obterNomeProduto Recebe o produtoId e devolve o nome.
  */
 function renderizarHistorico(movimentacoes, obterNomeProduto) {
-  // TODO (Fase 4)
+  const corpoTabela = document.getElementById('corpo-tabela-movimentacoes');
+  const mensagemVazio = document.getElementById('historico-vazio');
+  if (!corpoTabela) {
+    return;
+  }
+
+  const tabela = corpoTabela.closest('table');
+  corpoTabela.textContent = '';
+
+  const estaVazio = movimentacoes.length === 0;
+  if (tabela) {
+    tabela.hidden = estaVazio;
+  }
+  if (mensagemVazio) {
+    mensagemVazio.hidden = !estaVazio;
+  }
+  if (estaVazio) {
+    return;
+  }
+
+  movimentacoes.forEach((movimentacao) => {
+    const linha = document.createElement('tr');
+
+    const colunaData = document.createElement('td');
+    colunaData.textContent = formatarDataHora(movimentacao.data);
+
+    const colunaProduto = document.createElement('td');
+    colunaProduto.textContent = obterNomeProduto(movimentacao.produtoId);
+
+    const colunaTipo = document.createElement('td');
+    const badge = document.createElement('span');
+    badge.className = `badge badge--${movimentacao.tipo}`;
+    badge.textContent = movimentacao.tipo === TIPOS_MOVIMENTACAO.ENTRADA ? 'Entrada' : 'Saída';
+    colunaTipo.appendChild(badge);
+
+    const colunaQuantidade = document.createElement('td');
+    colunaQuantidade.textContent = String(movimentacao.quantidade);
+
+    const colunaObservacao = document.createElement('td');
+    colunaObservacao.textContent = movimentacao.observacao || '-';
+
+    linha.append(colunaData, colunaProduto, colunaTipo, colunaQuantidade, colunaObservacao);
+    corpoTabela.appendChild(linha);
+  });
 }
