@@ -111,8 +111,21 @@ function atualizarProduto(id, dados) {
  * @returns {boolean} true se salvou.
  */
 function atualizarQuantidadeProduto(id, novaQuantidade) {
-  // TODO (Fase 4)
-  return false;
+  if (!Number.isInteger(novaQuantidade) || novaQuantidade < 0) {
+    return false;
+  }
+
+  const produtos = carregarProdutos();
+  const indice = produtos.findIndex((produto) => produto.id === id);
+
+  if (indice === -1) {
+    return false;
+  }
+
+  produtos[indice].quantidade = novaQuantidade;
+  produtos[indice].atualizadoEm = obterDataAtualIso();
+
+  return salvarProdutos(produtos);
 }
 
 /**

@@ -102,3 +102,4 @@
 | CT061 | Responsividade | Abrir a aplicação em uma tela de celular. | Elementos devem se adaptar ao tamanho da tela. | Pendente |
 | CT062 | Navegação | Utilizar formulários, botões e campos do sistema. | Elementos devem funcionar corretamente. | Pendente |
 | CT063 | Atualização dos contadores | Realizar cadastro, exclusão e movimentações. | Indicadores devem refletir os dados atuais. | Pendente |
+

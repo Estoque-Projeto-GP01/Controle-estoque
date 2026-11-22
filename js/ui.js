@@ -237,7 +237,29 @@ function resetarFormularioProduto() {
  * @param {Array<Object>} produtos
  */
 function renderizarSelectProdutos(produtos) {
-  // TODO (Fase 4)
+  const selectProduto = document.getElementById('mov-produto');
+  if (!selectProduto) {
+    return;
+  }
+
+  const valorSelecionadoAntes = selectProduto.value;
+
+  selectProduto.textContent = '';
+
+  const opcaoPadrao = document.createElement('option');
+  opcaoPadrao.value = '';
+  opcaoPadrao.textContent = 'Selecione um produto';
+  selectProduto.appendChild(opcaoPadrao);
+
+  produtos.forEach((produto) => {
+    const opcao = document.createElement('option');
+    opcao.value = produto.id;
+    opcao.textContent = `${produto.nome} (${produto.quantidade} em estoque)`;
+    selectProduto.appendChild(opcao);
+  });
+
+  const existeNaLista = produtos.some((produto) => produto.id === valorSelecionadoAntes);
+  selectProduto.value = existeNaLista ? valorSelecionadoAntes : '';
 }
 
 /**
@@ -245,13 +267,19 @@ function renderizarSelectProdutos(produtos) {
  * @returns {{produtoId: string, tipo: string, quantidade: string, observacao: string}}
  */
 function lerFormularioMovimentacao() {
-  // TODO (Fase 4)
-  return { produtoId: '', tipo: '', quantidade: '', observacao: '' };
+  return {
+    produtoId: document.getElementById('mov-produto').value,
+    tipo: document.getElementById('mov-tipo').value,
+    quantidade: document.getElementById('mov-quantidade').value,
+    observacao: document.getElementById('mov-observacao').value
+  };
 }
 
 /** Limpa quantidade e observação após registrar (mantém produto e tipo para agilizar). */
 function resetarFormularioMovimentacao() {
-  // TODO (Fase 4)
+  document.getElementById('mov-quantidade').value = '';
+  document.getElementById('mov-observacao').value = '';
+  limparErrosCampos(CAMPOS_FORM_MOVIMENTACAO);
 }
 
 /**
