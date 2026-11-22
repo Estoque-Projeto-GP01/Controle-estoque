@@ -14,7 +14,21 @@
  * Chamar depois de qualquer alteração (cadastro, edição, exclusão, movimentação).
  */
 function atualizarTela() {
-  // TODO (Fase 2): resumo e tabela.  (Fase 4): pesquisa, select e histórico.
+  const produtos = listarProdutos();
+  const termoPesquisa = document.getElementById('campo-pesquisa').value;
+  const haPesquisaAtiva = normalizarTexto(termoPesquisa) !== '';
+  const produtosFiltrados = filtrarProdutosPorNome(produtos, termoPesquisa);
+
+  // TODO (Fase 2): renderizarResumo(calcularResumo(produtos));
+  // TODO (Fase 2): renderizarTabelaProdutos(produtosFiltrados, haPesquisaAtiva);
+
+  renderizarSelectProdutos(produtos);
+
+  const obterNomeProduto = (produtoId) => {
+    const produto = produtos.find((item) => item.id === produtoId);
+    return produto ? produto.nome : 'Produto removido';
+  };
+  renderizarHistorico(listarMovimentacoesRecentes(), obterNomeProduto);
 }
 
 /**
@@ -76,7 +90,7 @@ function tratarEnvioFormularioMovimentacao(evento) {
 
 /** Digitação no campo de pesquisa: filtra a tabela em tempo real. */
 function tratarPesquisa() {
-  // TODO (Fase 4): basta chamar atualizarTela, que já lê o termo pesquisado.
+  atualizarTela();
 }
 
 /** Botão "Carregar dados de exemplo": popula o estoque para prints e vídeo. */
