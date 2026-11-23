@@ -16,11 +16,22 @@
 function atualizarTela() {
   const produtos = listarProdutos();
 
-  renderizarResumo(calcularResumo(produtos)); // sempre do estoque inteiro, mesmo com pesquisa
-  renderizarTabelaProdutos(produtos, false);
-  // TODO (Fase 4): pesquisa, select e histórico.
-}
+  const termoPesquisa = document.getElementById('campo-pesquisa').value;
+  const haPesquisaAtiva = normalizarTexto(termoPesquisa) !== '';
+  const produtosFiltrados = filtrarProdutosPorNome(produtos, termoPesquisa);
 
+  renderizarResumo(calcularResumo(produtos)); // sempre do estoque inteiro, mesmo com pesquisa
+renderizarTabelaProdutos(produtosFiltrados, haPesquisaAtiva);
+  
+  renderizarSelectProdutos(produtos);
+
+  const obterNomeProduto = (produtoId) => {
+    const produto = produtos.find((item) => item.id === produtoId);
+    return produto ? produto.nome : 'Produto removido';
+  };
+  renderizarHistorico(listarMovimentacoesRecentes(), obterNomeProduto);
+} 
+  
 /**
  * Envio do formulário de produto.
  * Se o campo oculto produto-id estiver vazio, é cadastro (criarProduto);
@@ -80,12 +91,12 @@ function tratarEnvioFormularioMovimentacao(evento) {
 
 /** Digitação no campo de pesquisa: filtra a tabela em tempo real. */
 function tratarPesquisa() {
-  // TODO (Fase 4): basta chamar atualizarTela, que já lê o termo pesquisado.
+  atualizarTela();
 }
 
 /** Botão "Carregar dados de exemplo": popula o estoque para prints e vídeo. */
 function tratarCarregarDadosExemplo() {
-function tratarCarregarDadosExemplo() {
+
   const confirmar = confirm(
     'Carregar os dados de exemplo? Os dados atuais serão substituídos.'
   );
@@ -188,9 +199,6 @@ function tratarCarregarDadosExemplo() {
     'Dados de exemplo carregados com sucesso!',
     'sucesso'
   );
-}
-
-  // TODO (Fase 5)
 }
 
 /** Liga cada elemento ao seu tratador. Nada de onclick no HTML. */

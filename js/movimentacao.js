@@ -148,8 +148,11 @@ function registrarMovimentacao(dados) {
  * @returns {Array<Object>}
  */
 function listarMovimentacoesRecentes() {
-  // TODO (Fase 4)
-  return [];
+  const movimentacoes = carregarMovimentacoes();
+
+  return [...movimentacoes]
+    .sort((a, b) => new Date(b.data) - new Date(a.data))
+    .slice(0, LIMITE_HISTORICO);
 }
 
 /**
