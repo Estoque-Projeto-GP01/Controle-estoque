@@ -71,7 +71,21 @@ function limparMensagem() {
  * @param {Object} mapaCampos CAMPOS_FORM_PRODUTO ou CAMPOS_FORM_MOVIMENTACAO.
  */
 function mostrarErrosCampos(erros, mapaCampos) {
-  // TODO (Fase 2)
+  let primeiroCampoComErro = null;
+
+  for (const [chave, texto] of Object.entries(erros)) {
+    const ids = mapaCampos[chave];
+    if (!ids) {
+      continue; // ex.: erros.geral não pertence a nenhum campo
+    }
+    const campo = document.getElementById(ids.idCampo);
+    document.getElementById(ids.idErro).textContent = texto;
+    campo.classList.add('campo--invalido');
+    campo.setAttribute('aria-invalid', 'true'); // o leitor de tela anuncia "inválido"
+    primeiroCampoComErro = primeiroCampoComErro ?? campo;
+  }
+
+  primeiroCampoComErro?.focus();
 }
 
 /**
@@ -79,7 +93,12 @@ function mostrarErrosCampos(erros, mapaCampos) {
  * @param {Object} mapaCampos CAMPOS_FORM_PRODUTO ou CAMPOS_FORM_MOVIMENTACAO.
  */
 function limparErrosCampos(mapaCampos) {
-  // TODO (Fase 2)
+  for (const ids of Object.values(mapaCampos)) {
+    const campo = document.getElementById(ids.idCampo);
+    document.getElementById(ids.idErro).textContent = '';
+    campo.classList.remove('campo--invalido');
+    campo.removeAttribute('aria-invalid');
+  }
 }
 
 /* ---------- Resumo e listagem ---------- */
@@ -206,8 +225,13 @@ function criarBadgeStatus(status) {
  * @returns {{id: string, nome: string, categoria: string, quantidade: string, estoqueMinimo: string}}
  */
 function lerFormularioProduto() {
-  // TODO (Fase 2)
-  return { id: '', nome: '', categoria: '', quantidade: '', estoqueMinimo: '' };
+  return {
+    id: document.getElementById('produto-id').value,
+    nome: document.getElementById('produto-nome').value,
+    categoria: document.getElementById('produto-categoria').value,
+    quantidade: document.getElementById('produto-quantidade').value,
+    estoqueMinimo: document.getElementById('produto-estoque-minimo').value
+  };
 }
 
 /**

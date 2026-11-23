@@ -11,6 +11,7 @@
  * As chaves de "erros" são os nomes dos campos do modelo
  * (nome, categoria, quantidade, estoqueMinimo). O ui.js usa essas chaves
  * para mostrar cada mensagem junto ao campo certo.
+ * Um erro que não é de um campo (ex.: falha ao salvar) vem em erros.geral.
  */
 
 const CATEGORIAS = ['Alimentos', 'Bebidas', 'Limpeza', 'Higiene', 'Papelaria', 'Outros'];
@@ -39,8 +40,53 @@ const STATUS_ESTOQUE = {
  * @returns {{valido: boolean, erros: Object<string, string>}}
  */
 function validarProduto(dados, opcoes = {}) {
-  // TODO (Fase 2): implementar as regras acima.
-  return { valido: false, erros: {} };
+  const { idIgnorado, validarQuantidade = true } = opcoes;
+  const nome = String(dados.nome ?? '').trim();
+  const erros = {};
+
+  if (!nome) {
+    erros.nome = 'Informe o nome do produto.';
+  } else if (nome.length < TAMANHO_MINIMO_NOME) {
+    erros.nome = `O nome precisa ter pelo menos ${TAMANHO_MINIMO_NOME} caracteres.`;
+  } else if (existeNomeDuplicado(nome, idIgnorado)) {
+    erros.nome = 'Já existe um produto com esse nome.';
+  }
+
+  if (!CATEGORIAS.includes(dados.categoria)) {
+    erros.categoria = 'Selecione uma categoria.';
+  }
+
+  const erroQuantidade = validarInteiroNaoNegativo(dados.quantidade, 'a quantidade');
+  if (validarQuantidade && erroQuantidade) {
+    erros.quantidade = erroQuantidade;
+  }
+
+  const erroEstoqueMinimo = validarInteiroNaoNegativo(dados.estoqueMinimo, 'o estoque mínimo');
+  if (erroEstoqueMinimo) {
+    erros.estoqueMinimo = erroEstoqueMinimo;
+  }
+
+  return { valido: Object.keys(erros).length === 0, erros };
+}
+
+/**
+ * Mesma regra para quantidade e estoque mínimo, escrita uma vez só.
+ * @param {string} valor Valor digitado no campo.
+ * @param {string} descricao Ex.: "a quantidade", usado na mensagem "Informe a quantidade."
+ * @returns {string} A mensagem de erro, ou '' se o valor for válido.
+ */
+function validarInteiroNaoNegativo(valor, descricao) {
+  if (String(valor ?? '').trim() === '') {
+    return `Informe ${descricao}.`;
+  }
+  const numero = converterParaInteiro(valor);
+  if (Number.isNaN(numero)) {
+    return 'Use um número inteiro, sem vírgula.';
+  }
+  if (numero < 0) {
+    return 'O valor não pode ser negativo.';
+  }
+  return '';
 }
 
 /**
@@ -51,8 +97,10 @@ function validarProduto(dados, opcoes = {}) {
  * @returns {boolean}
  */
 function existeNomeDuplicado(nome, idIgnorado) {
-  // TODO (Fase 2)
-  return false;
+  const nomeComparavel = normalizarTexto(nome);
+  return carregarProdutos().some(
+    (produto) => produto.id !== idIgnorado && normalizarTexto(produto.nome) === nomeComparavel
+  );
 }
 
 /**
@@ -64,8 +112,32 @@ function existeNomeDuplicado(nome, idIgnorado) {
  * @returns {{sucesso: boolean, erros: Object, produto: Object|null}}
  */
 function criarProduto(dados) {
-  // TODO (Fase 2)
-  return { sucesso: false, erros: {}, produto: null };
+  const validacao = validarProduto(dados);
+  if (!validacao.valido) {
+    return { sucesso: false, erros: validacao.erros, produto: null };
+  }
+
+  const agora = obterDataAtualIso();
+  const produto = {
+    id: gerarId(),
+    nome: dados.nome.trim(),
+    categoria: dados.categoria,
+    quantidade: converterParaInteiro(dados.quantidade),
+    estoqueMinimo: converterParaInteiro(dados.estoqueMinimo),
+    criadoEm: agora,
+    atualizadoEm: agora
+  };
+
+  const produtos = carregarProdutos();
+  produtos.push(produto);
+  if (!salvarProdutos(produtos)) {
+    return {
+      sucesso: false,
+      erros: { geral: 'Não foi possível salvar. O armazenamento do navegador pode estar cheio ou bloqueado.' },
+      produto: null
+    };
+  }
+  return { sucesso: true, erros: {}, produto };
 }
 
 /**
