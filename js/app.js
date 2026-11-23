@@ -42,12 +42,34 @@ renderizarTabelaProdutos(produtosFiltrados, haPesquisaAtiva);
  */
 function tratarEnvioFormularioProduto(evento) {
   evento.preventDefault(); // impede o recarregamento da página
-  // TODO (Fase 2: cadastro / Fase 3: edição)
+  limparMensagem();
+  limparErrosCampos(CAMPOS_FORM_PRODUTO);
+
+  const dados = lerFormularioProduto();
+  const estaEditando = dados.id !== '';
+
+  const resultado = estaEditando
+    ? atualizarProduto(dados.id, dados)
+    : criarProduto(dados);
+
+  if (!resultado.sucesso) {
+    mostrarErrosCampos(resultado.erros, CAMPOS_FORM_PRODUTO);
+    mostrarMensagem('Verifique os campos destacados antes de salvar o produto.', 'erro');
+    return;
+  }
+
+  mostrarMensagem(
+    estaEditando ? 'Produto atualizado com sucesso!' : 'Produto cadastrado com sucesso!',
+    'sucesso'
+  );
+  resetarFormularioProduto();
+  atualizarTela();
 }
 
 /** Botão "Cancelar" da edição: volta o formulário ao modo cadastro. */
 function tratarCancelarEdicao() {
-  // TODO (Fase 3)
+  resetarFormularioProduto();
+  limparMensagem();
 }
 
 /**
@@ -60,7 +82,48 @@ function tratarCancelarEdicao() {
  * @param {MouseEvent} evento
  */
 function tratarCliqueTabelaProdutos(evento) {
-  // TODO (Fase 3)
+  const botao = evento.target.closest('button[data-acao]');
+  if (!botao) {
+    return;
+  }
+
+  const id = botao.dataset.id;
+  const acao = botao.dataset.acao;
+  const produto = buscarProdutoPorId(id);
+
+  if (!produto) {
+    mostrarMensagem('Produto não encontrado.', 'erro');
+    atualizarTela();
+    return;
+  }
+
+  if (acao === 'editar') {
+    limparMensagem();
+    preencherFormularioEdicao(produto);
+    return;
+  }
+
+  if (acao === 'excluir') {
+    const confirmou = window.confirm(
+      `Excluir "${produto.nome}"? As movimentações dele também serão apagadas.`
+    );
+    if (!confirmou) {
+      return;
+    }
+
+    if (!excluirProduto(id)) {
+      mostrarMensagem('Não foi possível excluir o produto.', 'erro');
+      return;
+    }
+
+    // Se o produto excluído estava aberto para edição, volta ao modo cadastro.
+    if (document.getElementById('produto-id').value === id) {
+      resetarFormularioProduto();
+    }
+
+    mostrarMensagem('Produto excluído com sucesso!', 'sucesso');
+    atualizarTela();
+  }
 }
 
 /**

@@ -218,7 +218,24 @@ function lerFormularioProduto() {
  * @param {Object} produto
  */
 function preencherFormularioEdicao(produto) {
-  // TODO (Fase 3)
+  limparErrosCampos(CAMPOS_FORM_PRODUTO);
+
+  document.getElementById('produto-id').value = produto.id;
+  document.getElementById('produto-nome').value = produto.nome;
+  document.getElementById('produto-categoria').value = produto.categoria;
+  document.getElementById('produto-estoque-minimo').value = produto.estoqueMinimo;
+
+  // A quantidade só muda por movimentação: fica travada e com a dica visível.
+  const campoQuantidade = document.getElementById('produto-quantidade');
+  campoQuantidade.value = produto.quantidade;
+  campoQuantidade.disabled = true;
+  document.getElementById('dica-produto-quantidade').hidden = false;
+
+  document.getElementById('titulo-form-produto').textContent = TEXTOS_FORM_PRODUTO.EDICAO.titulo;
+  document.getElementById('btn-salvar-produto').textContent = TEXTOS_FORM_PRODUTO.EDICAO.botao;
+  document.getElementById('btn-cancelar-edicao').hidden = false;
+
+  document.getElementById('produto-nome').focus();
 }
 
 /**
@@ -226,7 +243,17 @@ function preencherFormularioEdicao(produto) {
  * quantidade, esconde "Cancelar" e restaura TEXTOS_FORM_PRODUTO.CADASTRO.
  */
 function resetarFormularioProduto() {
-  // TODO (Fase 2: limpar; Fase 3: desfazer o modo edição)
+  // Parte do cadastro (Emerson): limpar campos e erros.
+  document.getElementById('form-produto').reset();
+  limparErrosCampos(CAMPOS_FORM_PRODUTO);
+
+  // Parte da edição (Karla): desfazer o modo edição.
+  document.getElementById('produto-id').value = '';
+  document.getElementById('produto-quantidade').disabled = false;
+  document.getElementById('dica-produto-quantidade').hidden = true;
+  document.getElementById('titulo-form-produto').textContent = TEXTOS_FORM_PRODUTO.CADASTRO.titulo;
+  document.getElementById('btn-salvar-produto').textContent = TEXTOS_FORM_PRODUTO.CADASTRO.botao;
+  document.getElementById('btn-cancelar-edicao').hidden = true;
 }
 
 /* ---------- Movimentação e histórico ---------- */

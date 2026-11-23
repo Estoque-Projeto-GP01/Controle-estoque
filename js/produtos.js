@@ -85,9 +85,11 @@ function listarProdutos() {
  * @returns {Object|null} O produto ou null se não existir.
  */
 function buscarProdutoPorId(id) {
-  // TODO (Fase 3)
-  return null;
+  const produtos = carregarProdutos();
+  const produto = produtos.find((item) => item.id === id);
+  return produto || null;
 }
+
 
 /**
  * Atualiza nome, categoria e estoque mínimo de um produto existente.
@@ -99,8 +101,36 @@ function buscarProdutoPorId(id) {
  * @returns {{sucesso: boolean, erros: Object, produto: Object|null}}
  */
 function atualizarProduto(id, dados) {
-  // TODO (Fase 3)
-  return { sucesso: false, erros: {}, produto: null };
+  const produtos = carregarProdutos();
+  const indice = produtos.findIndex((produto) => produto.id === id);
+
+  if (indice === -1) {
+    return { sucesso: false, erros: { nome: 'Produto não encontrado.' }, produto: null };
+  }
+
+  const validacao = validarProduto(dados, { idIgnorado: id, validarQuantidade: false });
+  if (!validacao.valido) {
+    return { sucesso: false, erros: validacao.erros, produto: null };
+  }
+
+  const produtoAtualizado = {
+    ...produtos[indice],
+    nome: String(dados.nome).trim(),
+    categoria: String(dados.categoria).trim(),
+    estoqueMinimo: converterParaInteiro(dados.estoqueMinimo),
+    atualizadoEm: obterDataAtualIso()
+  };
+  produtos[indice] = produtoAtualizado;
+
+  if (!salvarProdutos(produtos)) {
+    return {
+      sucesso: false,
+      erros: { nome: 'Não foi possível salvar o produto no navegador.' },
+      produto: null
+    };
+  }
+
+  return { sucesso: true, erros: {}, produto: produtoAtualizado };
 }
 
 /**
@@ -136,8 +166,20 @@ function atualizarQuantidadeProduto(id, novaQuantidade) {
  * @returns {boolean} true se excluiu.
  */
 function excluirProduto(id) {
-  // TODO (Fase 3)
-  return false;
+  const produtos = carregarProdutos();
+  const restantes = produtos.filter((produto) => produto.id !== id);
+
+  // Nada foi removido: o id não existe.
+  if (restantes.length === produtos.length) {
+    return false;
+  }
+
+  if (!salvarProdutos(restantes)) {
+    return false;
+  }
+
+  excluirMovimentacoesDoProduto(id);
+  return true;
 }
 
 /**
