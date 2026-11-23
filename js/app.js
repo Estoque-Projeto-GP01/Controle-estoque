@@ -201,9 +201,6 @@ function tratarCarregarDadosExemplo() {
   );
 }
 
-  // TODO (Fase 5)
-}
-
 /** Liga cada elemento ao seu tratador. Nada de onclick no HTML. */
 function registrarEventos() {
   document.getElementById('form-produto').addEventListener('submit', tratarEnvioFormularioProduto);
