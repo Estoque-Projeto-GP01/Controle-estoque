@@ -14,7 +14,11 @@
  * Chamar depois de qualquer alteração (cadastro, edição, exclusão, movimentação).
  */
 function atualizarTela() {
-  // TODO (Fase 2): resumo e tabela.  (Fase 4): pesquisa, select e histórico.
+  const produtos = listarProdutos();
+
+  renderizarResumo(calcularResumo(produtos)); // sempre do estoque inteiro, mesmo com pesquisa
+  renderizarTabelaProdutos(produtos, false);
+  // TODO (Fase 4): pesquisa, select e histórico.
 }
 
 /**
@@ -144,6 +148,111 @@ function tratarPesquisa() {
 
 /** Botão "Carregar dados de exemplo": popula o estoque para prints e vídeo. */
 function tratarCarregarDadosExemplo() {
+function tratarCarregarDadosExemplo() {
+  const confirmar = confirm(
+    'Carregar os dados de exemplo? Os dados atuais serão substituídos.'
+  );
+
+  if (!confirmar) {
+    return;
+  }
+
+  const agora = obterDataAtualIso();
+
+  const produtos = [
+    {
+      id: gerarId(),
+      nome: 'Arroz 5kg',
+      categoria: 'Alimentos',
+      quantidade: 20,
+      estoqueMinimo: 5,
+      criadoEm: agora,
+      atualizadoEm: agora
+    },
+    {
+      id: gerarId(),
+      nome: 'Feijão 1kg',
+      categoria: 'Alimentos',
+      quantidade: 3,
+      estoqueMinimo: 5,
+      criadoEm: agora,
+      atualizadoEm: agora
+    },
+    {
+      id: gerarId(),
+      nome: 'Detergente',
+      categoria: 'Limpeza',
+      quantidade: 0,
+      estoqueMinimo: 10,
+      criadoEm: agora,
+      atualizadoEm: agora
+    },
+    {
+      id: gerarId(),
+      nome: 'Refrigerante 2L',
+      categoria: 'Bebidas',
+      quantidade: 15,
+      estoqueMinimo: 5,
+      criadoEm: agora,
+      atualizadoEm: agora
+    },
+    {
+      id: gerarId(),
+      nome: 'Papel Higiênico',
+      categoria: 'Higiene',
+      quantidade: 5,
+      estoqueMinimo: 5,
+      criadoEm: agora,
+      atualizadoEm: agora
+    }
+  ];
+
+  const movimentacoes = [
+    {
+      id: gerarId(),
+      produtoId: produtos[0].id,
+      tipo: 'entrada',
+      quantidade: 10,
+      observacao: 'Entrada de mercadoria para teste',
+      data: agora
+    },
+    {
+      id: gerarId(),
+      produtoId: produtos[1].id,
+      tipo: 'saida',
+      quantidade: 2,
+      observacao: 'Saída de mercadoria para teste',
+      data: agora
+    },
+    {
+      id: gerarId(),
+      produtoId: produtos[3].id,
+      tipo: 'entrada',
+      quantidade: 5,
+      observacao: 'Reposição de estoque',
+      data: agora
+    }
+  ];
+
+  const produtosSalvos = salvarProdutos(produtos);
+  const movimentacoesSalvas = salvarMovimentacoes(movimentacoes);
+
+  if (!produtosSalvos || !movimentacoesSalvas) {
+    mostrarMensagem(
+      'Erro ao salvar os dados de exemplo.',
+      'erro'
+    );
+    return;
+  }
+
+  atualizarTela();
+
+  mostrarMensagem(
+    'Dados de exemplo carregados com sucesso!',
+    'sucesso'
+  );
+}
+
   // TODO (Fase 5)
 }
 
