@@ -377,6 +377,7 @@ function renderizarHistorico(movimentacoes, obterNomeProduto) {
     colunaTipo.appendChild(badge);
 
     const colunaQuantidade = document.createElement('td');
+    colunaQuantidade.className = 'tabela__numero'; // alinha à direita, como o título da coluna
     colunaQuantidade.textContent = String(movimentacao.quantidade);
 
     const colunaObservacao = document.createElement('td');
