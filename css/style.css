@@ -49,6 +49,11 @@
   box-sizing: border-box;
 }
 
+/* Evita que o campo que recebe o foco fique embaixo da mensagem fixa. */
+html {
+  scroll-padding-top: 6rem;
+}
+
 body {
   margin: 0;
   font-family: var(--fonte);
@@ -352,6 +357,10 @@ main {
   padding: var(--espaco-md);
   border: 1px solid transparent;
   font-weight: 600;
+  /* Os formulários ficam abaixo da mensagem: fixa no topo, ela é vista mesmo com a página rolada. */
+  position: sticky;
+  top: var(--espaco-sm);
+  z-index: 5;
 }
 
 /* Vazia, a área continua no DOM (necessário para o aria-live), mas não aparece. */
@@ -403,9 +412,15 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
+/* Um nome longo e sem espaços quebra em linhas em vez de esticar a tabela. */
+.tabela__nome {
+  min-width: 10rem;
+  overflow-wrap: anywhere;
+}
+
 .tabela__acoes {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* lado a lado: empilhados, dobrariam a altura da linha no celular */
   gap: var(--espaco-sm);
 }
 
