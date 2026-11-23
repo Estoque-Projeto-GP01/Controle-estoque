@@ -38,9 +38,41 @@ const STATUS_ESTOQUE = {
  *        validarQuantidade: padrão true; a edição passa false.
  * @returns {{valido: boolean, erros: Object<string, string>}}
  */
-function validarProduto(dados, opcoes = {}) {
-  // TODO (Fase 2): implementar as regras acima.
-  return { valido: false, erros: {} };
+function validarProduto(dados, idIgnorado = null) {
+  const erros = {};
+  const nome = String(dados.nome || '').trim();
+
+  if (nome === '') {
+    erros.nome = 'Informe o nome.';
+  } else if (nome.length < 2) {
+    erros.nome = 'O nome deve ter pelo menos 2 caracteres.';
+  } else if (nome.length > 60) {
+    erros.nome = 'O nome deve ter no máximo 60 caracteres.';
+  } else if (existeNomeDuplicado(nome, idIgnorado)) {
+    erros.nome = 'Já existe um produto com esse nome.';
+  }
+
+  if (!CATEGORIAS_PRODUTO.includes(dados.categoria)) {
+    erros.categoria = 'Escolha uma categoria.';
+  }
+
+  const textoQuantidade = String(dados.quantidade ?? '').trim();
+  const quantidade = converterInteiro(textoQuantidade);
+  if (textoQuantidade === '') {
+    erros.quantidade = 'Informe a quantidade.';
+  } else if (!Number.isInteger(quantidade) || quantidade < 0) {
+    erros.quantidade = 'A quantidade deve ser um número inteiro maior ou igual a 0.';
+  }
+
+  const textoMinimo = String(dados.estoqueMinimo ?? '').trim();
+  const estoqueMinimo = converterInteiro(textoMinimo);
+  if (textoMinimo === '') {
+    erros.estoqueMinimo = 'Informe o estoque mínimo.';
+  } else if (!Number.isInteger(estoqueMinimo) || estoqueMinimo < 0) {
+    erros.estoqueMinimo = 'O estoque mínimo deve ser um número inteiro maior ou igual a 0.';
+  }
+
+  return erros;
 }
 
 /**
@@ -50,9 +82,11 @@ function validarProduto(dados, opcoes = {}) {
  * @param {string} [idIgnorado] id do produto que deve ser desconsiderado (edição).
  * @returns {boolean}
  */
-function existeNomeDuplicado(nome, idIgnorado) {
-  // TODO (Fase 2)
-  return false;
+function existeNomeDuplicado(nome, idIgnorado = null) {
+  const alvo = normalizarTexto(nome.trim());
+  return listarProdutos().some(
+    (produto) => produto.id !== idIgnorado && normalizarTexto(produto.nome) === alvo
+  );
 }
 
 /**
@@ -64,19 +98,27 @@ function existeNomeDuplicado(nome, idIgnorado) {
  * @returns {{sucesso: boolean, erros: Object, produto: Object|null}}
  */
 function criarProduto(dados) {
-  // TODO (Fase 2)
-  return { sucesso: false, erros: {}, produto: null };
-}
+  const erros = validarProduto(dados);
+  if (Object.keys(erros).length > 0) {
+    return { sucesso: false, erros: erros, produto: null };
+  }
 
-/**
- * Lista todos os produtos ordenados por nome (A-Z), ignorando acentos e
- * maiúsculas. Dica: a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }).
- * @returns {Array<Object>}
- */
-function listarProdutos() {
-  return carregarProdutos().sort((a, b) =>
-    a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' })
-  );
+  const agora = new Date().toISOString();
+  const produto = {
+    id: gerarId(),
+    nome: dados.nome.trim(),
+    categoria: dados.categoria,
+    quantidade: converterInteiro(dados.quantidade),
+    estoqueMinimo: converterInteiro(dados.estoqueMinimo),
+    criadoEm: agora,
+    atualizadoEm: agora,
+  };
+
+  const lista = listarProdutos();
+  lista.push(produto);
+  salvarProdutos(lista);
+
+  return { sucesso: true, erros: {}, produto: produto };
 }
 
 /**

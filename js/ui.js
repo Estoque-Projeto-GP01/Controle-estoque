@@ -70,16 +70,39 @@ function limparMensagem() {
  * @param {Object<string, string>} erros Ex.: { nome: 'Informe o nome.' }
  * @param {Object} mapaCampos CAMPOS_FORM_PRODUTO ou CAMPOS_FORM_MOVIMENTACAO.
  */
-function mostrarErrosCampos(erros, mapaCampos) {
-  // TODO (Fase 2)
+function mostrarErrosCampos(erros) {
+  limparErrosCampos();
+
+  Object.keys(erros).forEach((campo) => {
+    const sufixo = campo.replace(/([A-Z])/g, '-$1').toLowerCase();
+    const entrada = document.getElementById('produto-' + sufixo);
+    const mensagemErro = document.getElementById('erro-produto-' + sufixo);
+
+    if (entrada) {
+      entrada.classList.add('campo-invalido');
+      entrada.setAttribute('aria-invalid', 'true');
+    }
+    if (mensagemErro) {
+      mensagemErro.textContent = erros[campo];
+    }
+  });
+
+  const primeiro = document.querySelector('#form-produto .campo-invalido');
+  if (primeiro) primeiro.focus();
 }
 
 /**
  * Remove todas as mensagens de erro e marcações de inválido de um formulário.
  * @param {Object} mapaCampos CAMPOS_FORM_PRODUTO ou CAMPOS_FORM_MOVIMENTACAO.
  */
-function limparErrosCampos(mapaCampos) {
-  // TODO (Fase 2)
+function limparErrosCampos() {
+  document.querySelectorAll('#form-produto .campo-invalido').forEach((el) => {
+    el.classList.remove('campo-invalido');
+    el.removeAttribute('aria-invalid');
+  });
+  document.querySelectorAll('[id^="erro-produto-"]').forEach((el) => {
+    el.textContent = '';
+  });
 }
 
 /* ---------- Resumo e listagem ---------- */
@@ -206,8 +229,12 @@ function criarBadgeStatus(status) {
  * @returns {{id: string, nome: string, categoria: string, quantidade: string, estoqueMinimo: string}}
  */
 function lerFormularioProduto() {
-  // TODO (Fase 2)
-  return { id: '', nome: '', categoria: '', quantidade: '', estoqueMinimo: '' };
+  return {
+    nome: document.getElementById('produto-nome').value,
+    categoria: document.getElementById('produto-categoria').value,
+    quantidade: document.getElementById('produto-quantidade').value,
+    estoqueMinimo: document.getElementById('produto-estoque-minimo').value,
+  };
 }
 
 /**

@@ -30,8 +30,19 @@ function atualizarTela() {
  * @param {SubmitEvent} evento
  */
 function tratarEnvioFormularioProduto(evento) {
-  evento.preventDefault(); // impede o recarregamento da página
-  // TODO (Fase 2: cadastro / Fase 3: edição)
+  evento.preventDefault();
+
+  const dados = lerFormularioProduto();
+  const resultado = criarProduto(dados);
+
+  if (!resultado.sucesso) {
+    mostrarErrosCampos(resultado.erros);
+    return;
+  }
+
+  resetarFormularioProduto();
+  mostrarMensagem('Produto cadastrado com sucesso.', 'sucesso');
+  atualizarTela();
 }
 
 /** Botão "Cancelar" da edição: volta o formulário ao modo cadastro. */
