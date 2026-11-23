@@ -2,6 +2,8 @@
 
 Aplicação web para controle de estoque de pequenos comércios e empresas, desenvolvida como **Projeto Integrador do 3º semestre de Análise e Desenvolvimento de Sistemas** (2ª etapa: implementação).
 
+**Acesse a aplicação:** https://estoque-projeto-gp01.github.io/Controle-estoque/
+
 ## Problema e objetivo
 
 Muitos pequenos comércios controlam o estoque com anotações manuais e planilhas. Isso gera divergência nas quantidades e lentidão nas consultas.
@@ -42,7 +44,7 @@ Não há backend, banco de dados, npm nem etapa de build.
 
 **Localmente:** baixe ou clone o repositório e dê dois cliques em `index.html`. Ele abre no navegador e funciona sem instalar nada.
 
-**GitHub Pages:** em *Settings > Pages*, escolha *Deploy from a branch*, branch `main`, pasta `/ (root)`. O site fica disponível em `https://<usuario>.github.io/<repositorio>/`.
+**Online:** a aplicação está publicada no GitHub Pages em https://estoque-projeto-gp01.github.io/Controle-estoque/ e é atualizada automaticamente a cada merge na `main` (em *Settings > Pages*: *Deploy from a branch*, branch `main`, pasta `/ (root)`).
 
 > Os dados ficam salvos **no navegador em que você usou a aplicação**. Abrir pelo arquivo local e abrir pelo GitHub Pages são endereços diferentes, então cada um tem seus próprios dados. Limpar os dados do site no navegador apaga o estoque.
 
