@@ -157,111 +157,68 @@ function tratarPesquisa() {
   atualizarTela();
 }
 
+// Nome, categoria, quantidade e estoque mínimo. Inclui itens com estoque baixo e um zerado,
+// para os prints e o vídeo mostrarem todos os status.
+const PRODUTOS_EXEMPLO = [
+  ['Arroz 5kg', 'Alimentos', 20, 5],
+  ['Feijão 1kg', 'Alimentos', 3, 5],
+  ['Detergente', 'Limpeza', 0, 10],
+  ['Refrigerante 2L', 'Bebidas', 15, 5],
+  ['Papel Higiênico', 'Higiene', 5, 5],
+  ['Caneta azul', 'Papelaria', 2, 10],
+  ['Sabonete', 'Higiene', 30, 10],
+  ['Água mineral 500ml', 'Bebidas', 48, 12],
+  ['Caderno 96 folhas', 'Papelaria', 7, 5]
+];
+
+// Posição do produto em PRODUTOS_EXEMPLO, tipo, quantidade, observação e há quantas horas aconteceu.
+// Horários diferentes deixam a ordem do histórico previsível.
+const MOVIMENTACOES_EXEMPLO = [
+  [0, 'entrada', 10, 'Entrada de mercadoria', 5],
+  [1, 'saida', 2, 'Venda no balcão', 4],
+  [3, 'entrada', 5, 'Reposição de estoque', 3],
+  [5, 'saida', 8, 'Material para o escritório', 2],
+  [2, 'saida', 4, 'Venda no balcão', 1]
+];
+
 /** Botão "Carregar dados de exemplo": popula o estoque para prints e vídeo. */
 function tratarCarregarDadosExemplo() {
-
-  const confirmar = confirm(
-    'Carregar os dados de exemplo? Os dados atuais serão substituídos.'
-  );
-
-  if (!confirmar) {
+  // Sem confirm(): o enunciado só permite na exclusão. Por isso só carrega com o
+  // estoque vazio, assim nunca apaga dados de verdade.
+  if (carregarProdutos().length > 0) {
+    mostrarMensagem('Os dados de exemplo só podem ser carregados com o estoque vazio.', 'erro');
     return;
   }
 
-  const agora = obterDataAtualIso();
+  const agora = Date.now();
+  const dataHorasAtras = (horas) => new Date(agora - horas * 60 * 60 * 1000).toISOString();
 
-  const produtos = [
-    {
-      id: gerarId(),
-      nome: 'Arroz 5kg',
-      categoria: 'Alimentos',
-      quantidade: 20,
-      estoqueMinimo: 5,
-      criadoEm: agora,
-      atualizadoEm: agora
-    },
-    {
-      id: gerarId(),
-      nome: 'Feijão 1kg',
-      categoria: 'Alimentos',
-      quantidade: 3,
-      estoqueMinimo: 5,
-      criadoEm: agora,
-      atualizadoEm: agora
-    },
-    {
-      id: gerarId(),
-      nome: 'Detergente',
-      categoria: 'Limpeza',
-      quantidade: 0,
-      estoqueMinimo: 10,
-      criadoEm: agora,
-      atualizadoEm: agora
-    },
-    {
-      id: gerarId(),
-      nome: 'Refrigerante 2L',
-      categoria: 'Bebidas',
-      quantidade: 15,
-      estoqueMinimo: 5,
-      criadoEm: agora,
-      atualizadoEm: agora
-    },
-    {
-      id: gerarId(),
-      nome: 'Papel Higiênico',
-      categoria: 'Higiene',
-      quantidade: 5,
-      estoqueMinimo: 5,
-      criadoEm: agora,
-      atualizadoEm: agora
-    }
-  ];
+  const produtos = PRODUTOS_EXEMPLO.map(([nome, categoria, quantidade, estoqueMinimo]) => ({
+    id: gerarId(),
+    nome,
+    categoria,
+    quantidade,
+    estoqueMinimo,
+    criadoEm: dataHorasAtras(24),
+    atualizadoEm: dataHorasAtras(24)
+  }));
 
-  const movimentacoes = [
-    {
-      id: gerarId(),
-      produtoId: produtos[0].id,
-      tipo: 'entrada',
-      quantidade: 10,
-      observacao: 'Entrada de mercadoria para teste',
-      data: agora
-    },
-    {
-      id: gerarId(),
-      produtoId: produtos[1].id,
-      tipo: 'saida',
-      quantidade: 2,
-      observacao: 'Saída de mercadoria para teste',
-      data: agora
-    },
-    {
-      id: gerarId(),
-      produtoId: produtos[3].id,
-      tipo: 'entrada',
-      quantidade: 5,
-      observacao: 'Reposição de estoque',
-      data: agora
-    }
-  ];
+  const movimentacoes = MOVIMENTACOES_EXEMPLO.map(([indice, tipo, quantidade, observacao, horas]) => ({
+    id: gerarId(),
+    produtoId: produtos[indice].id,
+    tipo,
+    quantidade,
+    observacao,
+    data: dataHorasAtras(horas)
+  }));
 
-  const produtosSalvos = salvarProdutos(produtos);
-  const movimentacoesSalvas = salvarMovimentacoes(movimentacoes);
-
-  if (!produtosSalvos || !movimentacoesSalvas) {
-    mostrarMensagem(
-      'Erro ao salvar os dados de exemplo.',
-      'erro'
-    );
+  if (!salvarProdutos(produtos) || !salvarMovimentacoes(movimentacoes)) {
+    mostrarMensagem('Não foi possível salvar os dados de exemplo.', 'erro');
     return;
   }
 
   atualizarTela();
-
-  mostrarMensagem(
-    'Dados de exemplo carregados com sucesso!',
-    'sucesso'
-  );
+  mostrarMensagem('Dados de exemplo carregados com sucesso!', 'sucesso');
 }
 
 /** Liga cada elemento ao seu tratador. Nada de onclick no HTML. */
