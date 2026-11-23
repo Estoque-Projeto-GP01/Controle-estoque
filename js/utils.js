@@ -70,5 +70,7 @@ function converterParaInteiro(valor) {
   if (!/^-?\d+$/.test(texto)) {
     return NaN;
   }
-  return Number(texto);
+  const numero = Number(texto);
+  // Acima de 9 quatrilhões o JS arredonda (9007199254740993 vira ...992): tratamos como inválido.
+  return Number.isSafeInteger(numero) ? numero : NaN;
 }
